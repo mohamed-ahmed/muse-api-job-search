@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+import logging
+
+from tornado.escape import json_decode, json_encode
+from tornado.ioloop import IOLoop
+from tornado import gen
+from tornado.options import define, options, parse_command_line, parse_config_file
+from tornado.web import Application, RequestHandler, authenticated
+from tornado.httpclient import AsyncHTTPClient
+
+define('port', default=7777, help="port to listen on")
+
+class GenAsyncHandler(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        http_client = AsyncHTTPClient()
+        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?page=0&company=Artsicle&job_category=Engineering&job_level=Internship&job_location=New+York%2C+NY")
+        
+        #print(response.body)
+        jsonResponse = json_decode(response.body)
+        print(jsonResponse["results"])
+        # self.render("template.html")
+
+def main():
+    app = Application(
+        [
+            ('/', GenAsyncHandler),
+
+        ])
+
+    app.listen(options.port)
+    logging.info('Listening on http://localhost:%d' % options.port)
+    IOLoop.instance().start()
+
+if __name__ == '__main__':
+    main()
+

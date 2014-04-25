@@ -75,6 +75,12 @@ $( document ).ready( function(){
 		_cityNum = 0;
 	});
 
+	$("#inputCompany").change(function(){
+		console.log( $("#inputCompany").val() );
+		_queryObject.company = $("#inputCompany").val();
+		_cityNum = 0;
+	});
+
 	var input = document.getElementById('search-location');
 	autocomplete = new google.maps.places.Autocomplete(input);
 

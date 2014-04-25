@@ -22,11 +22,25 @@ class GenAsyncHandler(RequestHandler):
         #print(jsonResponse["results"])
         self.render("index.html")
 
+class GenAsyncHandlerJson(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        http_client = AsyncHTTPClient()
+        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?page=0&company=Artsicle&job_category=Engineering&job_level=Internship&job_location=New+York%2C+NY")
+        
+        #print(response.body)
+        jsonResponse = json_decode(response.body)
+        #print(jsonResponse["results"])
+        self.write(jsonResponse);
+
+
 
 
 class MyApplication(Application):
     def __init__(self):
-        handlers = [('/', GenAsyncHandler),]
+        handlers = [('/', GenAsyncHandler),
+                    ('/json', GenAsyncHandlerJson),
+        ]
 
         settings = dict(
             cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",

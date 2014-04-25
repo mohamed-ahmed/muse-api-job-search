@@ -26,7 +26,10 @@ class GenAsyncHandlerJson(RequestHandler):
     @gen.coroutine
     def get(self):
         http_client = AsyncHTTPClient()
-        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?page=0&job_location=New+York%2C+NY")
+        #name = self.get_argument('job_location', False)
+        urlParams = self.request.uri[6:]
+        print(urlParams)
+        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?" + urlParams)
         
         #print(response.body)
         jsonResponse = json_decode(response.body)
@@ -39,7 +42,7 @@ class GenAsyncHandlerJson(RequestHandler):
 class MyApplication(Application):
     def __init__(self):
         handlers = [('/', GenAsyncHandler),
-                    ('/json', GenAsyncHandlerJson),
+                    ('/json*', GenAsyncHandlerJson),
         ]
 
         settings = dict(

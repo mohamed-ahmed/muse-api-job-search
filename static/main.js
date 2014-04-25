@@ -33,7 +33,21 @@ var _cityNum = 0;
 //var myLocation = new google.maps.LatLng(45.4214, -75.691);
 //var myLocation = new google.maps.LatLng(36, -118.691);
 
+_getLocation();
+function _getLocation(){
+	if (navigator.geolocation){
+		navigator.geolocation.getCurrentPosition(_showPosition);
+	}
+}
+function _showPosition(position){
+	_searchLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	console.log(_searchLocation);
+	$("#use-current-location").css({"background-color":"rgb(0, 133, 255)"});
+	rankLocationsByDistance(LOCATIONS, _searchLocation);
+	_queryObject.job_location = _sortedList[0].name;
+	$("#search-button").trigger("click");
 
+}
 
 
 
@@ -52,7 +66,7 @@ $( document ).ready( function(){
 
 
 	$("#load-more-button").click(function(){
-		if(_responseObject.currentPage == _responseObject.totalPages -1){
+		if(_responseObject.currentPage >= _responseObject.totalPages -1){
 			_queryObject.page = 0;
 			_cityNum++;
 			_queryObject.job_location = _sortedList[_cityNum].name;
@@ -65,20 +79,26 @@ $( document ).ready( function(){
 
 	$("#inputJobCategory").change(function(){
 		console.log( $("#inputJobCategory").val() );
-		_queryObject.job_category = $("#inputJobCategory").val();
-		_cityNum = 0;
+		if($("#inputJobCategory").val() != "- Select -"){
+			_queryObject.job_category = $("#inputJobCategory").val();
+			_cityNum = 0;
+		}
 	});
 
 	$("#inputJobLevel").change(function(){
 		console.log( $("#inputJobLevel").val() );
-		_queryObject.job_level = $("#inputJobLevel").val();
-		_cityNum = 0;
+		if($("#inputJobLevel").val() != "- Select -");{
+			_queryObject.job_level = $("#inputJobLevel").val();
+			_cityNum = 0;
+		}
 	});
 
 	$("#inputCompany").change(function(){
-		console.log( $("#inputCompany").val() );
-		_queryObject.company = $("#inputCompany").val();
-		_cityNum = 0;
+		console.log( $("#inputJobLevel").val() );
+		if( $("#inputJobLevel").val().trim().length > 0 ){
+			_queryObject.company = $("#inputCompany").val();
+			_cityNum = 0;
+		}
 	});
 
 	var input = document.getElementById('search-location');
@@ -129,7 +149,6 @@ $( document ).ready( function(){
 	});
 
 	$("#use-current-location").trigger("click");
-	$("#search-button").trigger("click");
 
 } );
 
@@ -183,24 +202,24 @@ function processJobData(data){
 
 function addJobToDom(job){
 	var elem =
-		dom("div", {class:"job row"},
-			dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
-			dom("div", {class:"text-info col-xs-12 col-md-4"},
-				dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
-				dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
-				dom("p", {class:"distance"}, document.createTextNode("Distance: " + job.distance)),
-				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
+	dom("div", {class:"job row"},
+		dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
+		dom("div", {class:"text-info col-xs-12 col-md-4"},
+			dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
+			dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
+			dom("p", {class:"distance"}, document.createTextNode("Distance: " + job.distance)),
+			dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
 			),
-			dom("div", {class:"text-info col-xs-12 col-md-4"},
-				dom("p", {class:"job-title"}, document.createTextNode("Job Title: " + job.title)),
-				dom("p", {class:"job-levels"}, document.createTextNode("Job Level: " + job.levels.toString())),
-				dom("p", {class:"posting-date"}, document.createTextNode("Posting date: " + (new Date(job.creation_date)).toDateString() )),
-				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
+		dom("div", {class:"text-info col-xs-12 col-md-4"},
+			dom("p", {class:"job-title"}, document.createTextNode("Job Title: " + job.title)),
+			dom("p", {class:"job-levels"}, document.createTextNode("Job Level: " + job.levels.toString())),
+			dom("p", {class:"posting-date"}, document.createTextNode("Posting date: " + (new Date(job.creation_date)).toDateString() )),
+			dom("p", {class:"job-categories"}, document.createTextNode("Job Categories: " + job.categories.toString()))
 			)
 		);
 
-	$("#job-container").append(elem);
-	$(elem).slideDown("slow");
+$("#job-container").append(elem);
+$(elem).slideDown("slow");
 }
 
 function rankLocationsByDistance(jobLocations, myLatLang){
@@ -245,37 +264,37 @@ function rankLocationsByDistance(jobLocations, myLatLang){
 
 
 function dom(name, attributes) {
-  var node = document.createElement(name);
-  if (attributes) {
-    forEachIn(attributes, function(name, value) {
-      setNodeAttribute(node, name, value);
-    });
-  }
-  for (var i = 2; i < arguments.length; i++) {
-    var child = arguments[i];
-    if (typeof child == "string")
-      child = document.createTextNode(child);
-    node.appendChild(child);
-  }
-  return node;
+	var node = document.createElement(name);
+	if (attributes) {
+		forEachIn(attributes, function(name, value) {
+			setNodeAttribute(node, name, value);
+		});
+	}
+	for (var i = 2; i < arguments.length; i++) {
+		var child = arguments[i];
+		if (typeof child == "string")
+			child = document.createTextNode(child);
+		node.appendChild(child);
+	}
+	return node;
 }
 
 function forEachIn(object, action) {
-  for (var property in object) {
-    if (object.hasOwnProperty(property))
-      action(property, object[property]);
-  }
+	for (var property in object) {
+		if (object.hasOwnProperty(property))
+			action(property, object[property]);
+	}
 }
 
 function setNodeAttribute(node, attribute, value) {
-  if (attribute == "class")
-    node.className = value;
-  else if (attribute == "checked")
-    node.defaultChecked = value;
-  else if (attribute == "for")
-    node.htmlFor = value;
-  else if (attribute == "style")
-    node.style.cssText = value;
-  else
-    node.setAttribute(attribute, value);
+	if (attribute == "class")
+		node.className = value;
+	else if (attribute == "checked")
+		node.defaultChecked = value;
+	else if (attribute == "for")
+		node.htmlFor = value;
+	else if (attribute == "style")
+		node.style.cssText = value;
+	else
+		node.setAttribute(attribute, value);
 }

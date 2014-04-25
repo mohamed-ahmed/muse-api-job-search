@@ -25,6 +25,7 @@
 
 #load-more-button{
 	margin: 40px;
+	display: none;
 }
 
 #load-more-button-wrapper
@@ -62,4 +63,20 @@
 	margin-top: 10px;
 	border: solid;
 	border-color: gray;
+}
+
+.footer {
+	position: relative;
+	margin-top: 60px;
+	margin-bottom: 10px;
+	height: 20px;
+	clear:both;
+	padding-top:20px;
+	color:#c2c2c2;
+	text-align:center;
+} 
+
+#footer1, #footer2{
+	display:inline;
+	color:#c2c2c2;
 }

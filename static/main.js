@@ -45,9 +45,11 @@ $( document ).ready( function(){
 	$("#search-button").click(function(){
 		$(".job").remove();
 		_cityNum = 0;
-
+		_queryObject.page=0;
 		requestData();
 	});
+
+
 
 	$("#load-more-button").click(function(){
 		if(_responseObject.currentPage == _responseObject.totalPages -1){
@@ -64,6 +66,12 @@ $( document ).ready( function(){
 	$("#inputJobCategory").change(function(){
 		console.log( $("#inputJobCategory").val() );
 		_queryObject.job_category = $("#inputJobCategory").val();
+		_cityNum = 0;
+	});
+
+	$("#inputJobLevel").change(function(){
+		console.log( $("#inputJobLevel").val() );
+		_queryObject.job_level = $("#inputJobLevel").val();
 		_cityNum = 0;
 	});
 
@@ -115,6 +123,7 @@ $( document ).ready( function(){
 	});
 
 	$("#use-current-location").trigger("click");
+	$("#search-button").trigger("click");
 
 } );
 
@@ -140,6 +149,7 @@ function onGetJsonResponse(data){
 	}
 
 	processJobData(data);
+	$("#load-more-button").show();
 }
 
 function processJobData(data){
@@ -169,10 +179,16 @@ function addJobToDom(job){
 	var elem =
 		dom("div", {class:"job row"},
 			dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
-			dom("div", {class:"text-info col-xs-12 col-md-8"},
+			dom("div", {class:"text-info col-xs-12 col-md-4"},
 				dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
 				dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
 				dom("p", {class:"distance"}, document.createTextNode("Distance: " + job.distance)),
+				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
+			),
+			dom("div", {class:"text-info col-xs-12 col-md-4"},
+				dom("p", {class:"job-title"}, document.createTextNode("Job Title: " + job.title)),
+				dom("p", {class:"job-levels"}, document.createTextNode("Job Level: " + job.levels.toString())),
+				dom("p", {class:"posting-date"}, document.createTextNode("Posting date: " + (new Date(job.creation_date)).toDateString() )),
 				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
 			)
 		);

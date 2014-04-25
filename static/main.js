@@ -81,24 +81,33 @@ $( document ).ready( function(){
 		console.log( $("#inputJobCategory").val() );
 		if($("#inputJobCategory").val() != "- Select -"){
 			_queryObject.job_category = $("#inputJobCategory").val();
-			_cityNum = 0;
 		}
+		_queryObject.job_category = null;
+		_cityNum = 0;
+		
 	});
 
 	$("#inputJobLevel").change(function(){
 		console.log( $("#inputJobLevel").val() );
-		if($("#inputJobLevel").val() != "- Select -");{
+		if($("#inputJobLevel").val() != "- Select -"){
 			_queryObject.job_level = $("#inputJobLevel").val();
-			_cityNum = 0;
 		}
+		else{
+			_queryObject.job_level = null;
+		}
+		_cityNum = 0;
+		
 	});
 
 	$("#inputCompany").change(function(){
 		console.log( $("#inputJobLevel").val() );
 		if( $("#inputJobLevel").val().trim().length > 0 ){
 			_queryObject.company = $("#inputCompany").val();
-			_cityNum = 0;
 		}
+		else{
+			_queryObject.company = null; 
+		}
+			_cityNum = 0;
 	});
 
 	var input = document.getElementById('search-location');

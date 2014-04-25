@@ -26,7 +26,7 @@ class GenAsyncHandlerJson(RequestHandler):
     @gen.coroutine
     def get(self):
         http_client = AsyncHTTPClient()
-        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?page=0&company=Artsicle&job_category=Engineering&job_level=Internship&job_location=New+York%2C+NY")
+        response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?page=0&job_location=New+York%2C+NY")
         
         #print(response.body)
         jsonResponse = json_decode(response.body)

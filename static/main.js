@@ -1,3 +1,4 @@
+var _searchLocation
 var _sortedList;
 var _queryObject = {
 	baseString : "/json?",
@@ -30,10 +31,9 @@ var _cityNum = 0;
 
 
 //var myLocation = new google.maps.LatLng(45.4214, -75.691);
-var myLocation = new google.maps.LatLng(36, -118.691);
+//var myLocation = new google.maps.LatLng(36, -118.691);
 
-rankLocationsByDistance(LOCATIONS, myLocation);
-_queryObject.job_location = _sortedList[0].name;
+
 
 
 
@@ -41,8 +41,11 @@ _queryObject.job_location = _sortedList[0].name;
 $( document ).ready( function(){
 	console.log("document ready");
 
+
 	$("#search-button").click(function(){
 		$(".job").remove();
+		_cityNum = 0;
+
 		requestData();
 	});
 
@@ -58,6 +61,60 @@ $( document ).ready( function(){
 		requestData();
 	});
 
+	$("#inputJobCategory").change(function(){
+		console.log( $("#inputJobCategory").val() );
+		_queryObject.job_category = $("#inputJobCategory").val();
+		_cityNum = 0;
+	});
+
+	var input = document.getElementById('search-location');
+	autocomplete = new google.maps.places.Autocomplete(input);
+
+	google.maps.event.addListener(autocomplete, 'place_changed', inputEventHandler);
+
+
+	function inputEventHandler() {
+			//input.className = '';
+			var place = autocomplete.getPlace();
+			console.log("Searching for place: ");
+			console.log(place);
+			if (!place.geometry) {
+			// Inform the user that the place was not found and return.
+			//input.className = 'notfound';
+			return;
+		}
+
+		else{
+			_searchLocation =  new google.maps.LatLng( place.geometry.location.lat(), place.geometry.location.lng());
+			console.log("_searchLocation: ");
+			console.log(_searchLocation);
+			$("#use-current-location").css({"background-color":"white"});
+			rankLocationsByDistance(LOCATIONS, _searchLocation);
+			_queryObject.job_location = _sortedList[0].name;
+
+		}
+
+	}
+
+	$("#use-current-location").click(function(){
+		console.log("use-current-location clicked");
+		getLocation();
+		function getLocation(){
+			if (navigator.geolocation){
+				navigator.geolocation.getCurrentPosition(showPosition);
+			}
+		}
+		function showPosition(position){
+			_searchLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			console.log(_searchLocation);
+			$("#use-current-location").css({"background-color":"rgb(0, 133, 255)"});
+			rankLocationsByDistance(LOCATIONS, _searchLocation);
+			_queryObject.job_location = _sortedList[0].name;
+		}
+
+	});
+
+	$("#use-current-location").trigger("click");
 
 } );
 
@@ -75,6 +132,13 @@ function onGetJsonResponse(data){
 	_responseObject.totalPages = data.page_count;
 	_responseObject.currentPage = data.page;
 	_responseObject.numberOfResults = data.results.length;
+
+	if(_responseObject.numberOfResults == 0 && _responseObject.currentPage == 0){
+		_cityNum++;
+		_queryObject.job_location = _sortedList[_cityNum].name;
+		requestData();
+	}
+
 	processJobData(data);
 }
 

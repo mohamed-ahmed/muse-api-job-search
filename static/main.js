@@ -28,9 +28,14 @@ function processJobData(data){
 
 function addJobtoDom(job){
 	var elem =
-		dom("div", {class:"job"},
-			dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name))
-	);
+		dom("div", {class:"job row"},
+			dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
+			dom("div", {class:"text-info col-xs-6 col-md-4"},
+				dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
+				dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
+				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
+			)
+		);
 
 	$("#job-container").append(elem);
 }

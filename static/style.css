@@ -1,5 +1,5 @@
 #job-container{
-	border:solid;
+	/*border:solid;*/
 	min-height:100px;
 }
 
@@ -10,6 +10,7 @@
 	border-width: 1px;
 	border-color: gray;
 	border-radius: 10px;
+	display: none;
 }
 
 .logo{
@@ -17,8 +18,9 @@
 	height:80px !important;
 }
 
-.company-name, .company-location{
+.company-name, .company-location, .distance{
 	color:black;
+	margin-bottom: 2px;
 }
 
 #load-more-button{
@@ -36,5 +38,18 @@
 }
 
 #header{
+	margin-bottom: 30px;
 	margin-top: 30px;
+}
+
+#form-group{
+	margin-top: 20px;;
+}
+
+#title{
+	margin-bottom: 50px;
+}
+
+.form-control, label{
+	margin-top: 10px;
 }

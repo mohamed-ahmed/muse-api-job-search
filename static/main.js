@@ -1,5 +1,5 @@
 var _sortedList;
-var queryObject = {
+var _queryObject = {
 	baseString : "/json?",
 	page : 0,
 	company: null,
@@ -20,55 +20,101 @@ var queryObject = {
 	}
 };
 
+var _responseObject = {
+	currentPage : null,
+	totalPages : null,
+	numberOfResults : null
+}
+
+var _cityNum = 0;
+
+
+//var myLocation = new google.maps.LatLng(45.4214, -75.691);
+var myLocation = new google.maps.LatLng(36, -118.691);
+
+rankLocationsByDistance(LOCATIONS, myLocation);
+_queryObject.job_location = _sortedList[0].name;
+
+
+
+
 $( document ).ready( function(){
 	console.log("document ready");
 
-	$("#search-button").click(requestData);
+	$("#search-button").click(function(){
+		$(".job").remove();
+		requestData();
+	});
+
+	$("#load-more-button").click(function(){
+		if(_responseObject.currentPage == _responseObject.totalPages -1){
+			_queryObject.page = 0;
+			_cityNum++;
+			_queryObject.job_location = _sortedList[_cityNum].name;
+		}
+		else{
+			_queryObject.page = _queryObject.page+1;
+		}
+		requestData();
+	});
 
 
 } );
 
 function requestData(){
 	console.log("requestData");
-	$(".job").remove();
 
-	//var myLocation = new google.maps.LatLng(45.4214, -75.691);
-	var myLocation = new google.maps.LatLng(36, -118.691);
-	rankLocationsByDistance(LOCATIONS, myLocation);
 
-	queryObject.job_location = _sortedList[0].name;
-
-	var url = queryObject.getUrlString();
+	var url = _queryObject.getUrlString();
 	$.get(url, onGetJsonResponse);
 }
 
 function onGetJsonResponse(data){
 	console.log("onGetJsonResponse");
 	console.log(data);
+	_responseObject.totalPages = data.page_count;
+	_responseObject.currentPage = data.page;
+	_responseObject.numberOfResults = data.results.length;
 	processJobData(data);
 }
 
 function processJobData(data){
 	var numPages = data.page_count;
 	var results = data.results;
+	var query;
 	console.log(numPages);
 	for( var i = 0 ; i < results.length ; i++){
-		addJobtoDom(results[i]);
+		if(results[i].locations.length > 1){
+			results[i].distance = "multiple";
+		}
+		else{
+			query = _.where(LOCATIONS, { name : results[i].locations[0] } )[0];
+			if(!query){
+				results[i].distance = "N/A";
+			}
+			else{
+				results[i].distance =  "" + Math.floor(query.distance / 1000 ) + " km";
+			}
+		}
+
+		addJobToDom(results[i]);
 	}
 }
 
-function addJobtoDom(job){
+function addJobToDom(job){
 	var elem =
 		dom("div", {class:"job row"},
 			dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
-			dom("div", {class:"text-info col-xs-6 col-md-4"},
+			dom("div", {class:"text-info col-xs-12 col-md-8"},
 				dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
 				dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
+				dom("p", {class:"distance"}, document.createTextNode("Distance: " + job.distance)),
 				dom("a", {class:"muse-link",href:"https://www.themuse.com"+job.apply_link, target:"_blank"}, document.createTextNode("More info"))
 			)
 		);
 
 	$("#job-container").append(elem);
+	$(elem).slideDown("slow");
 }
 
 function rankLocationsByDistance(jobLocations, myLatLang){

@@ -1,6 +1,7 @@
 #job-container{
 	/*border:solid;*/
 	min-height:100px;
+	margin-top: 20px;
 }
 
 .job{
@@ -79,4 +80,12 @@
 #footer1, #footer2{
 	display:inline;
 	color:#c2c2c2;
+}
+
+#loading-img{
+	display: hidden;
+}
+
+#no-results{
+	display: hidden;
 }

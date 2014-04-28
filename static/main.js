@@ -64,6 +64,7 @@ $( document ).ready( function(){
 
 	$("#search-button").click(function(){
 		$(".job").remove();
+		$("#loading-img").show();
 		_cityNum = 0;
 		_queryObject.page=0;
 		requestData();
@@ -179,7 +180,7 @@ $( document ).ready( function(){
 
 function requestData(){
 	console.log("requestData");
-
+	$("#no-results").hide();
 
 	var url = _queryObject.getUrlString();
 
@@ -194,6 +195,7 @@ function requestData(){
 
 
 	$.get(url, onGetJsonResponse);
+
 }
 
 function onGetJsonResponse(data){
@@ -205,8 +207,14 @@ function onGetJsonResponse(data){
 
 	if(_responseObject.numberOfResults == 0 && _responseObject.currentPage == 0){
 		_cityNum++;
-		_queryObject.job_location = _sortedList[_cityNum].name;
-		requestData();
+		if(_cityNum > LOCATIONS.length -1){
+			noResultsFound();
+		}else{
+			_queryObject.job_location = _sortedList[_cityNum].name;
+			requestData();
+		}
+	}else{
+		$("#loading-img").hide();
 	}
 
 	processJobData(data);
@@ -373,4 +381,9 @@ function setNodeAttribute(node, attribute, value) {
 		node.style.cssText = value;
 	else
 		node.setAttribute(attribute, value);
+}
+
+function noResultsFound(){
+	$("#loading-img").hide();
+	$("#no-results").show();
 }

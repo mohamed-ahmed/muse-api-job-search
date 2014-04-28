@@ -11,6 +11,7 @@ import os.path
 
 define('port', default=7777, help="port to listen on")
 
+
 class GenAsyncHandler(RequestHandler):
     @gen.coroutine
     def get(self):
@@ -28,7 +29,10 @@ class GenAsyncHandlerJson(RequestHandler):
         http_client = AsyncHTTPClient()
         #name = self.get_argument('job_location', False)
         urlParams = self.request.uri[6:]
+        myfile = open("muse.log", "a");
         print(urlParams)
+        myfile.write(urlParams + "\n")
+        myfile.close();
         response = yield http_client.fetch("https://www.themuse.com/api/v1/jobs?" + urlParams)
         
         #print(response.body)

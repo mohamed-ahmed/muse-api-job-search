@@ -1,4 +1,4 @@
-var _searchLocation
+var _searchLocation = {};
 var _sortedList;
 var _queryObject = {
 	baseString : "/json?",
@@ -40,12 +40,18 @@ function _getLocation(){
 	}
 }
 function _showPosition(position){
-	_searchLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-	console.log(_searchLocation);
+	_searchLocation.latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	_searchLocation.accuracy = position.coords.accuracy;
+
+	reverseGeocode(_searchLocation.latLng.lat(), _searchLocation.latLng.lng(), position.coords.accuracy, function(result){
+		_searchLocation.string = result;
+		$("#search-button").trigger("click");
+	} );
+
+	console.log(_searchLocation.latLng);
 	$("#use-current-location").css({"background-color":"rgb(0, 133, 255)"});
-	rankLocationsByDistance(LOCATIONS, _searchLocation);
+	rankLocationsByDistance(LOCATIONS, _searchLocation.latLng);
 	_queryObject.job_location = _sortedList[0].name;
-	$("#search-button").trigger("click");
 
 }
 
@@ -82,7 +88,9 @@ $( document ).ready( function(){
 		if($("#inputJobCategory").val() != "- Select -"){
 			_queryObject.job_category = $("#inputJobCategory").val();
 		}
-		_queryObject.job_category = null;
+		else{
+			_queryObject.job_category = null;
+		}
 		_cityNum = 0;
 		
 	});
@@ -128,11 +136,12 @@ $( document ).ready( function(){
 		}
 
 		else{
-			_searchLocation =  new google.maps.LatLng( place.geometry.location.lat(), place.geometry.location.lng());
-			console.log("_searchLocation: ");
-			console.log(_searchLocation);
+			_searchLocation.latLng =  new google.maps.LatLng( place.geometry.location.lat(), place.geometry.location.lng());
+			_searchLocation.string = place.formatted_address;
+			console.log("_searchLocation.latLng: ");
+			console.log(_searchLocation.latLng);
 			$("#use-current-location").css({"background-color":"white"});
-			rankLocationsByDistance(LOCATIONS, _searchLocation);
+			rankLocationsByDistance(LOCATIONS, _searchLocation.latLng);
 			_queryObject.job_location = _sortedList[0].name;
 
 		}
@@ -148,10 +157,17 @@ $( document ).ready( function(){
 			}
 		}
 		function showPosition(position){
-			_searchLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-			console.log(_searchLocation);
+			_searchLocation.latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			
+			_searchLocation.accuracy = position.coords.accuracy;
+
+			reverseGeocode(_searchLocation.latLng.lat(), _searchLocation.latLng.lng(), position.coords.accuracy, function(result){
+				_searchLocation.string = result;
+			} );
+
+			console.log(_searchLocation.latLng);
 			$("#use-current-location").css({"background-color":"rgb(0, 133, 255)"});
-			rankLocationsByDistance(LOCATIONS, _searchLocation);
+			rankLocationsByDistance(LOCATIONS, _searchLocation.latLng);
 			_queryObject.job_location = _sortedList[0].name;
 		}
 
@@ -166,6 +182,17 @@ function requestData(){
 
 
 	var url = _queryObject.getUrlString();
+
+	var resultString;
+	resultString = "Results - "
+	resultString += _queryObject.job_level ? _queryObject.job_level + " position " : "";
+	resultString += _queryObject.job_category ? " in " + _queryObject.job_category  : "";
+	resultString += _queryObject.job_location? " near " + _searchLocation.string : "";
+	resultString += _queryObject.company ? " at " + _queryObject.company  : "";
+
+	$("#result-string").text(resultString);
+
+
 	$.get(url, onGetJsonResponse);
 }
 
@@ -266,7 +293,47 @@ function rankLocationsByDistance(jobLocations, myLatLang){
 
 
 
+/*
+ * calculates location string based on coordinates and accuracy of location
+ */
+function reverseGeocode(lat, lng, accuracy, callback){
+ 	geocoder = new google.maps.Geocoder();
+ 	var latlng = new google.maps.LatLng(lat,lng);
+ 	var i = 0;
+ 	geocoder.geocode({'latLng': latlng}, function(results, status) {
+ 		if (status == google.maps.GeocoderStatus.OK) {
+ 			if (results[1]) {
+ 				console.log("results[0]"); console.log(results[0]);
+ 				console.log("results[1]"); console.log(results[1]);
+ 				console.log("results[2]"); console.log(results[2]);
+ 				console.log("results[3]"); console.log(results[3]);
+ 				console.log("results[4]"); console.log(results[4]);
+ 				console.log("results[5]"); console.log(results[5]);
+ 				console.log("results[6]"); console.log(results[6]);
+ 				console.log("results[7]"); console.log(results[7]);
+ 				if(accuracy >= 18000)
+	 				callback(results[6].formatted_address);
+ 				else{
+ 					while( (results[i].types.indexOf("street_address") != -1 || results[i].types.indexOf("postal_code") != -1 ) && results[i+1]){
+ 						console.log(results[i].types.indexOf("street_address"));
+ 						i++;
+ 					}
+ 					console.log("i: ")
+ 					console.log(i);
+	 				callback(results[i].formatted_address);
+				}
+ 			} else {
+ 				console.log('No results found');
+ 				callback(null);
+ 			}
+ 		} else {
+ 			console.log('Geocoder failed due to: ' + status);
+ 			callback(null);
+ 		}
+ 	});
 
+
+}
 
 
 

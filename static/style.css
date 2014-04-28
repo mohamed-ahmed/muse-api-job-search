@@ -7,7 +7,7 @@
 .job{
 	margin: 10px;
 	padding: 5px;
-	border: solid;
+	/*border: solid;*/
 	border-width: 1px;
 	border-color: black;
 	border-radius: 10px;
@@ -95,7 +95,7 @@ body
 {
 	background-image:url("/static/san-francisco.jpg");
 	background-repeat:no-repeat;
-	background-position:right top;
+	background-position:left top;
 	background-attachment:fixed;
 	color: black;
 }

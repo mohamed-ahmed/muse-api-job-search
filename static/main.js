@@ -73,6 +73,7 @@ $( document ).ready( function(){
 
 
 	$("#load-more-button").click(function(){
+		$("#loading-img").show();
 		if(_responseObject.currentPage >= _responseObject.totalPages -1){
 			_queryObject.page = 0;
 			_cityNum++;
@@ -247,7 +248,7 @@ function processJobData(data){
 function addJobToDom(job){
 	var elem =
 	dom("div", {class:"job row"},
-		dom("img", {class:"logo col-xs-6 col-md-4", src: job.company_small_logo_image}),
+		dom("img", {class:"logo col-xs-6 col-md-4", src: "https://tm-prod.global.ssl.fastly.net/" + job.company_small_logo_image}),
 		dom("div", {class:"text-info col-xs-12 col-md-4"},
 			dom("p", {class:"company-name"}, document.createTextNode("Company: " + job.company_name)),
 			dom("p", {class:"company-location"}, document.createTextNode("Location: " + job.locations.toString())),
